@@ -7,4 +7,5 @@ urlpatterns = [
     path('shiftbid/', include('shiftbid.urls')),
     path('seniority/', include('seniority.urls')),
     path('shift/', include('shift.urls')),
+    path('response/', include('responses.urls')),
 ]

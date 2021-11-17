@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'shiftbid.apps.ShiftbidConfig',
     'seniority.apps.SeniorityConfig',
     'shift.apps.ShiftConfig',
+    'responses.apps.ResponsesConfig',
 ]
 
 MIDDLEWARE = [

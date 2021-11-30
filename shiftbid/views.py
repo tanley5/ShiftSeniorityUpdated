@@ -11,6 +11,8 @@ from .forms import ShiftbidCreateForm
 from shift.models import Shift
 from seniority.models import Seniority
 
+from responses.utilities.custom_url_views import create_custom_views_url
+
 
 class ShiftbidListView(ListView):
     model = Shiftbid
@@ -40,3 +42,9 @@ def shiftbidSeniorityShiftListview(request, pk):
     shift_query = Shift.objects.filter(report=shiftbid)
     seniority_query = Seniority.objects.filter(report=shiftbid)
     return render(request, 'shiftbid/shiftbid_list_all.html', {'shift_object': shift_query, 'seniority_object': seniority_query})
+
+
+def shiftbidStart(request):
+    if request.method == 'POST':
+        create_custom_views_url()
+        return render(request, 'shiftbid/shiftbid_start.html')

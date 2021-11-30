@@ -11,6 +11,13 @@ Shiftbid Homepage
 <div class="container">
     <a href="{% url 'shiftbid_create' %}" class="btn btn-success">Create</a>
 </div>
+<hr>
+<div class="container">
+    <form action="{% url 'shiftbid_start' %}" method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary">Run</button>
+    </form>
+</div>
 <div class="container">
     <table class="table table-striped">
         <thead>

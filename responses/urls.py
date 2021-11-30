@@ -1,10 +1,10 @@
 from django.urls import path
 
-from .views import ResponseThanksView
+from .views import ResponseThanksView, ResponseCollectionView
 from .utilities.custom_url_views import urlpatterns as custom_url_patterns
 
 urlpatterns = [
-    # path('response_collection', ResponseCollectionView.as_view(),
-    #      name='response_collection'),
     path('response_thanks', ResponseThanksView.as_view(), name='response_thanks'),
-] + custom_url_patterns
+    path('response_collection/<report_name>',
+         ResponseCollectionView.as_view(), name='shiftbid_response'),
+]  # .append(custom_url_patterns)

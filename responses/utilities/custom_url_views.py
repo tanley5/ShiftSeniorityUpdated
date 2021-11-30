@@ -55,7 +55,7 @@ def spawn_child_elements(report_name):
 
 def create_url(report_name):
     urlpatterns.append(path(
-        f"response_collection/{report_name}", ResponseCollectionView.as_view(report_name=report_name), name=f"{report_name}-reponse_path"))
+        f"response_collection/{report_name}", ResponseCollectionView.as_view(), name=f"{report_name}-reponse_path"))
 
 
 def create_custom_views_url():

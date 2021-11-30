@@ -7,4 +7,4 @@ urlpatterns = [
     path('response_thanks', ResponseThanksView.as_view(), name='response_thanks'),
     path('response_collection/<report_name>',
          ResponseCollectionView.as_view(), name='shiftbid_response'),
-]  # .append(custom_url_patterns)
+]

@@ -5,7 +5,7 @@ from django.shortcuts import render
 
 from shiftbid.models import Shiftbid
 from responses.forms import ResponseForm
-#from responses.views import ResponseCollectionView
+from shift.models import Shift
 
 urlpatterns = []
 
@@ -28,10 +28,18 @@ class ResponseCollectionView(View):
                             report_name=report_name)
         context = {'form': form}
         if form.is_valid():
-            print(form.cleaned_data)
+            shift_chosen = form.cleaned_data["Shiftbid"][0].pk
+            email = form.cleaned_data["agent_email"]
+            handle_response_submission(shift_chosen, email)
             form = ResponseForm(report_name=report_name)
             return render(request, 'response/thanks.html', context)
         return render(request, 'response/response_collection.html', context)
+
+
+def handle_response_submission(shift_chosen, email):
+    shift = Shift.objects.get(pk=shift_chosen)
+    shift.agent_email = email
+    shift.save()
 
 
 def get_report_names():

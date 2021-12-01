@@ -1,4 +1,13 @@
+import pandas as pd
+
+import threading
+import time
+
+import schedule
+
 from shiftbid.models import Shiftbid
+from shift.models import Shift
+from seniority.models import Seniority
 
 
 class Report():
@@ -6,6 +15,7 @@ class Report():
         self.report_name = report_name
         self.first_sent = False
         self.sent_to_admin = False
+        self.set_report()
         self.set_all_shift()
         self.set_all_seniority()
         self.set_filled_shift()
@@ -18,55 +28,60 @@ class Report():
         self.email_object = email_object
         self.create_email_message_link()
 
+    def set_report(self):
+        shiftbid_object = Shiftbid.objects.get(report_name=self.report_name)
+        self.report = shiftbid_object
+
+    def set_all_shift(self):
+        df = pd.DataFrame.from_records(
+            Shift.objects.filter(report=self.report).values())
+        self.all_shift = df
+
+    def set_all_seniority(self):
+        df = pd.DataFrame.from_records(
+            Seniority.objects.filter(report=self.report).values())
+        self.all_seniority = df
+
+    def set_filled_shift(self):
+        df = self.all_shift
+        self.filled_shift = df[df["agent_email"] != '']
+
+    def set_current_seniority(self):
+        self.current_seniority = len(self.filled_shift)+1
+
+    def set_empty_shift(self):
+        df = self.all_shift
+        self.empty_shift = df[df["agent_email"] == '']
+
+    def set_current_epoch(self):
+        self.current_epoch = len(self.filled_shift)
+
     def set_last_epoch(self):
         self.last_epoch = len(self.empty_shift)
 
     def get_last_epoch(self):
         return self.last_epoch
 
-    def set_current_epoch(self):
-        self.current_epoch = len(self.filled_shift)
-
     def get_current_epoch(self):
         return self.current_epoch
-
-    def set_current_seniority(self):
-        self.current_seniority = len(self.filled_shift)+1
 
     def get_current_seniority(self):
         return self.current_seniority
 
-    def set_all_seniority(self):
-        df = ''  # pd.read_sql(connection settings)
-        #self.all_seniority = df.filter(self.report_name)
-
     def get_all_seniority(self):
         return self.all_seniority
-
-    def set_all_shift(self):
-        df = ''  # pd.read_sql(connection settings)
-        #self.all_shift = df.filter(self.report_name)
 
     def get_all_shift(self):
         return self.all_shift()
 
-    def set_filled_shift(self):
-        df = self.all_shift  # get all filled email address, remove the rest
-        #self.filled_shift = df.filter(self.report_name)
-
     def get_filled_shift(self):
         return self.filled_shift
-
-    def set_empty_shift(self):
-        df = self.all_shift  # get all empty email address column, remove the rest
-        # self.empty_shift = self.all_shift  # filter self.allfilled_shift
 
     def get_empty_shift(self):
         return self.empty_shift
 
     def update_fields(self):
         self.set_all_shift()
-        # self.set_all_seniority()
         self.set_filled_shift()
         self.set_empty_shift()
         self.set_current_seniority()
@@ -112,11 +127,34 @@ def get_report_names():
         report_names.append(i.report_name)
     return report_names
 
-# Create a list of Report objects
+# Create a list of Report objects & Schedule and call report creation function
+
+# This is the function to repeat
 
 
 def report_objects():
-    return [Report(report_name=i, email_object="") for i in get_report_names()]
+    list_of_reports = [Report(report_name=i, email_object="")
+                       for i in get_report_names()]
+    [report.create_report() for report in list_of_reports]
 
-# Schedule and call report creation function
-# End the scheduled report when all shifts are filled
+# Set up multi threading
+
+
+def run_threaded(job):
+    job_threaded = threading.Thread(target=job)
+    job_threaded.start()
+
+
+# setup scheduler. The function below is for testing
+def job():
+    print("I'm running on thread %s" % threading.current_thread())
+
+
+def schedule_task():
+    print("called the background_task thread")
+    schedule.every(10).seconds.do(run_threaded, job)
+    while 1:
+        schedule.run_pending()
+        time.sleep(1)
+
+    # End the scheduled report when all shifts are filled
